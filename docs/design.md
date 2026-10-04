@@ -1,4 +1,13 @@
-# Gauntlet mode: design
+# Impact Velocity: design
+
+## Modes
+The game opens on a mode selector with two modes:
+- **Impact**: the original arena FPS (team deathmatch and free-for-all against bots). It is the legacy game (legacy/impact-velocity.html) hosted as its own page with no behaviour change; see docs/parity.md.
+- **Velocity**: the Gauntlet mode described below. It is built from scratch and takes only visual inspiration from Impact (the look of its weapons and environments), not its code or logic.
+
+Settings (sensitivity, music and SFX volume) are shared by both modes.
+
+The rest of this document describes Velocity.
 
 ## Fantasy
 An endless obstacle course in the spirit of Titanfall 2's Gauntlet: jump gaps, wall-run, grapple, air-boost, and shoot non-attacking targets for points. Speed, accuracy, reaction time and movement skill win.
@@ -15,7 +24,7 @@ Points come from distance, speed and target hits. A combo multiplier rewards hit
 Random events where part of the map collapses. Always telegraphed with an audio cue and a short visual warning. Recovery must always be possible with a boost or grapple.
 
 ## Movement
-- Existing in Impact Velocity: wall-running and grappling.
+- Wall-running and grappling: Impact has them (unlocked by killstreaks). Velocity builds its own versions in src/sim, using Impact only as a reference for feel.
 - To build: air boost. OPEN DECISION: charges, cooldown, or something else. Decide before slice 2.
 
 ## Course
@@ -26,7 +35,7 @@ Built from hand-designed chunks (gap, wall-run corridor, grapple pit, boost shaf
 - Recentre the world periodically. Pool and dispose chunks. Measure frame time.
 
 ## Slices (one PR each)
-0. Split legacy into modules with no behaviour change. Smoke test. CI.
+0. Game shell: mode selector, Impact as its own page with no behaviour change (proven against legacy by a parity harness), Velocity shell page on a fixed timestep, shared settings. Smoke test. CI.
 1. Movement simulation on a fixed timestep, with deterministic replay tests.
 2. Greybox course with gap, wall-run, grapple and air boost.
 3. Non-attacking targets, hit zones, scoring and combo.
