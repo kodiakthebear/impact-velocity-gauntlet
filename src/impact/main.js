@@ -1,6 +1,7 @@
 import * as THREE from 'three/build/three.min.js'; /* same r128 build legacy loads from the CDN (byte-identical) */
 import { installParityHook } from './parityHook.js'; /* IMPACT-EDIT */
 import { h, setChildren, cloneAll } from './dom.js'; /* IMPACT-EDIT */
+import { loadSettings, saveSettings } from '../shared/settings.ts'; /* IMPACT-EDIT */
 'use strict';
 /* ================= UTILS ================= */
 function clamp(v,a,b){return v<a?a:v>b?b:v;}
@@ -1639,13 +1640,18 @@ for(var wi=0;wi<wbtns.length;wi++){
     loadoutPrimary=this.getAttribute('data-w');
   };
 }
-function bindRange(id,fn){$(id).oninput=function(){fn(parseInt(this.value));};}
+/* IMPACT-EDIT: slider changes are saved to the settings shared with the mode selector and Velocity */
+function persistSettings(){saveSettings({sens:parseInt($('sens').value),music:parseInt($('musv').value),sfx:parseInt($('sfxv').value)});}
+function bindRange(id,fn){$(id).oninput=function(){fn(parseInt(this.value));persistSettings();};}
 function setSens(v){sens=v*0.0001;$('sens').value=v;$('sens2').value=v;}
 function setMus(v){if(musG)musG.gain.value=v/100*0.5;$('musv').value=v;$('musv2').value=v;}
 bindRange('sens',setSens);bindRange('sens2',setSens);
 bindRange('musv',setMus);bindRange('musv2',setMus);
 bindRange('sfxv',function(v){if(sfxG)sfxG.gain.value=v/100;});
-setSens(22);
+/* IMPACT-EDIT: start from the shared settings (defaults equal the legacy 22/30/85) */
+var savedSettings=loadSettings();
+setSens(savedSettings.sens); setMus(savedSettings.music); $('sfxv').value=savedSettings.sfx;
+$('btnModes').onclick=function(){location.href='./';};
 if(window.speechSynthesis)window.speechSynthesis.onvoiceschanged=function(){};
 /* ================= MAIN LOOP ================= */
 var lastT=0;
