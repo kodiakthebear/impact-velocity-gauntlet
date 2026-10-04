@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IMPACT//VELOCITY</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{--hud:#e8ecff;--dimc:#7a80a8;height:100%;background:#050505;color:#e8e8e8;font-family:'Courier New',ui-monospace,Menlo,monospace;overflow:hidden;user-select:none}
+#cwrap{position:fixed;inset:0}
+#cwrap canvas{display:block}
+.scan{position:fixed;inset:0;pointer-events:none;z-index:9;background:repeating-linear-gradient(0deg,rgba(0,0,0,.1) 0 1px,transparent 1px 3px)}
+.red{color:#ff3b3b}.blue{color:#3b82ff}.dim{color:var(--dimc)}
+@keyframes pl{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes plslow{0%,100%{opacity:1}50%{opacity:.6}}
+.pulse{animation:pl 1.1s infinite}.pulseslow{animation:plslow 1.6s infinite}
+/* ---------- HUD ---------- */
+#hud{position:fixed;inset:0;pointer-events:none;z-index:10;display:none;color:var(--hud)}
+.h{position:absolute;letter-spacing:.5px}
+#feed{top:14px;left:16px;font-size:13px;line-height:1.75}
+#topbar{top:14px;left:50%;transform:translateX(-50%);font-size:13px;color:var(--hud)}
+#mmWrap{top:14px;right:16px;text-align:center;display:none}
+#mm{border:1px solid #555;background:#0a0a0a;display:block}
+#xh{top:50%;left:50%;transform:translate(-50%,-50%);color:var(--hud)}
+#hitm{top:50%;left:50%;transform:translate(-50%,-50%);font-size:30px;font-weight:bold;opacity:0;color:#fff}
+#announce{top:24%;left:50%;transform:translateX(-50%);font-size:28px;letter-spacing:8px;font-weight:bold;display:none;white-space:nowrap;text-shadow:2px 0 #ff3b3b,-2px 0 #3b82ff}
+#streakM{bottom:80px;left:16px;font-size:12px;color:#ff3b3b}
+#hpline{bottom:52px;left:16px;font-size:13px}
+#movehint{bottom:26px;left:16px;font-size:12px;color:#3b82ff}
+#powers{bottom:96px;right:16px;font-size:12px;text-align:right;line-height:1.8}
+#ammoline{bottom:52px;right:16px;font-size:13px;text-align:right}
+#sideline{bottom:26px;right:16px;font-size:12px;color:var(--dimc);text-align:right}
+#sabreT{top:58px;left:50%;transform:translateX(-50%);font-size:18px;letter-spacing:4px;color:#3b82ff;display:none;font-weight:bold}
+#vign{position:fixed;inset:0;pointer-events:none;z-index:11;box-shadow:inset 0 0 120px 40px rgba(255,30,30,.9);opacity:0;transition:opacity .12s}
+#sabreGlow{position:fixed;inset:0;pointer-events:none;z-index:11;box-shadow:inset 0 0 90px 12px rgba(59,130,255,.55);opacity:0}
+#scope{position:fixed;inset:0;pointer-events:none;z-index:12;display:none;background:radial-gradient(circle at 50% 50%,transparent 0 26vh,#000 27vh)}
+#scope .l{position:absolute;background:#e8e8e8}
+#deathcam{position:fixed;inset:0;z-index:13;display:none;pointer-events:none;text-align:center;padding-top:34vh;font-size:24px;letter-spacing:5px;color:#ff3b3b;background:rgba(5,5,5,.35)}
+#lockmsg{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);z-index:14;font-size:12px;color:#777;display:none;text-align:center}
+#toast{position:fixed;bottom:19%;left:50%;transform:translateX(-50%);z-index:12;font-size:14px;letter-spacing:3px;color:var(--hud);opacity:0;transition:opacity .15s;pointer-events:none}
+/* ---------- Menus ---------- */
+.overlay{position:fixed;inset:0;z-index:20;background:rgba(5,5,5,.82);display:none;align-items:center;justify-content:center;overflow:auto}
+.panel{max-width:760px;width:92%;padding:28px 30px;text-align:center}
+.logo{font-size:50px;letter-spacing:12px;font-weight:bold;text-shadow:3px 0 #ff3b3b,-3px 0 #3b82ff;margin-bottom:2px}
+.tag{font-size:12px;color:#777;letter-spacing:4px;margin-bottom:26px}
+.sect{border-top:1px solid #333;padding:14px 0 6px;margin-top:12px;font-size:11px;color:#777;letter-spacing:3px}
+button{background:transparent;border:1px solid #e8e8e8;color:#e8e8e8;padding:10px 20px;font:inherit;font-size:14px;letter-spacing:3px;cursor:pointer;margin:5px}
+button:hover:not(:disabled){background:#e8e8e8;color:#050505}
+button:disabled{border-color:#444;color:#444;cursor:default}
+button.sel{background:#e8e8e8;color:#050505}
+button.rd{border-color:#ff3b3b;color:#ff3b3b}
+button.rd:hover{background:#ff3b3b;color:#050505}
+button.sm{padding:6px 12px;font-size:12px;letter-spacing:2px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:150px;height:2px;background:#555;vertical-align:middle}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:12px;height:12px;background:#e8e8e8;cursor:pointer}
+.ctl{font-size:12px;color:#999;line-height:1.9;letter-spacing:1px}
+table{margin:16px auto;border-collapse:collapse;font-size:14px}
+td,th{padding:6px 22px;border-bottom:1px solid #333;letter-spacing:1px}
+th{color:#777;font-size:11px;letter-spacing:3px}
+</style>
+</head>
+<body>
+<div id="cwrap"></div>
+<div class="scan"></div>
+
+<div id="hud">
+  <div class="h" id="feed"></div>
+  <div class="h" id="topbar"></div>
+  <div class="h" id="mmWrap"><canvas id="mm" width="122" height="122"></canvas><div class="blue pulseslow" style="font-size:12px;margin-top:3px">UAV ACTIVE</div></div>
+  <div class="h" id="xh"><svg width="34" height="34" viewBox="0 0 34 34"><path d="M17 3V10 M17 24V31 M3 17H10 M24 17H31" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="17" r="1.5" fill="currentColor"/></svg></div>
+  <div class="h" id="hitm">×</div>
+  <div class="h" id="announce"></div>
+  <div class="h pulse" id="streakM"></div>
+  <div class="h" id="hpline"></div>
+  <div class="h" id="movehint"></div>
+  <div class="h" id="powers"></div>
+  <div class="h" id="ammoline"></div>
+  <div class="h" id="sideline">[1] PRIMARY &nbsp; [2] P-45 &nbsp; [3] KATANA &nbsp; [V] KNIFE</div>
+  <div class="h pulse" id="sabreT"></div>
+</div>
+<div id="vign"></div>
+<div id="sabreGlow"></div>
+<div id="scope"><div class="l" style="left:50%;top:0;bottom:0;width:1px"></div><div class="l" style="top:50%;left:0;right:0;height:1px"></div></div>
+<div id="deathcam"></div>
+<div id="toast"></div>
+<div id="lockmsg">pointer lock unavailable in this preview — download the file and open it directly in your browser</div>
+
+<div class="overlay" id="menuMain" style="display:flex">
+  <div class="panel">
+    <div class="logo">IMPACT<span class="red">//</span>VELOCITY</div>
+    <div class="tag">NIGHT CITY KILLBOX · <span class="blue">v0.5</span></div>
+    <div>
+      <button id="btnTDM">TEAM DEATHMATCH <span class="dim">VS BOTS</span></button>
+      <button id="btnFFA" class="rd">FREE FOR ALL <span style="opacity:.7">VS BOTS</span></button>
+      <button disabled title="netcode coming soon">ONLINE — SOON</button>
+    </div>
+    <div class="sect">LOADOUT — PRIMARY</div>
+    <div id="loadout">
+      <button class="sm wsel sel" data-w="smg">VEKTOR-9 SMG</button>
+      <button class="sm wsel" data-w="ar">AR-77 ASSAULT</button>
+      <button class="sm wsel" data-w="shotgun">M8 JUSTICE SHOTGUN</button>
+      <button class="sm wsel" data-w="sniper">LONGWAVE .50 SNIPER</button>
+    </div>
+    <div class="sect">SETTINGS</div>
+    <div style="font-size:12px;color:#999;letter-spacing:1px">
+      SENS <input type="range" id="sens" min="5" max="60" value="22">
+      &nbsp; MUSIC <input type="range" id="musv" min="0" max="100" value="30">
+      &nbsp; SFX <input type="range" id="sfxv" min="0" max="100" value="85">
+    </div>
+    
+    <div class="sect">CONTROLS</div>
+    <div class="ctl">
+      WASD move · SHIFT sprint · SPACE jump · C slide · Q dash · RMB aim · R reload<br>
+      <span class="blue">[E] grapple</span> after 3 streak · <span class="blue">[UAV]</span> at 5 ·
+      <span class="red">[G] gunslinger</span> at 10 · <span class="red">[H] rain hell</span> at 15 ·
+      <span class="red">SABRE SURPRISE</span> at 20 (wallrun + walljump + katana)
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="menuPause">
+  <div class="panel">
+    <div class="logo" style="font-size:30px">PAUSED</div>
+    <div><button id="btnResume">RESUME</button><button id="btnQuit" class="rd">ABANDON MATCH</button></div>
+    <div class="ctl" style="margin-top:14px">SENS <input type="range" id="sens2" min="5" max="60" value="22"> &nbsp; MUSIC <input type="range" id="musv2" min="0" max="100" value="30"></div>
+  </div>
+</div>
+
+<div class="overlay" id="menuResults">
+  <div class="panel">
+    <div class="logo" style="font-size:34px" id="resTitle">MATCH OVER</div>
+    <div id="resTable"></div>
+    <button id="btnBack">BACK TO MENU</button>
+  </div>
+</div>
+
+<script type="module" src="/src/impact/main.js"></script>
+</body>
+</html>
