@@ -1,0 +1,16 @@
+/* Shared look for the mode selector and Velocity, recreated from the Impact (legacy) menus. */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{--hud:#dff3ff;--dimc:#5f7d9c;--red:#ff3b3b;--blue:#3b82ff;--fg:#e8e8e8;--bg:#050505;
+  height:100%;background:var(--bg);color:var(--fg);font-family:'Courier New',ui-monospace,Menlo,monospace;user-select:none}
+.scan{position:fixed;inset:0;pointer-events:none;z-index:9;background:repeating-linear-gradient(0deg,rgba(0,0,0,.1) 0 1px,transparent 1px 3px)}
+.red{color:var(--red)}.blue{color:var(--blue)}.dim{color:var(--dimc)}
+.logo{font-size:50px;letter-spacing:12px;font-weight:bold;text-shadow:3px 0 var(--red),-3px 0 var(--blue);overflow-wrap:anywhere}
+.tag{font-size:12px;color:#777;letter-spacing:4px}
+.sect{border-top:1px solid #333;padding:14px 0 6px;margin-top:12px;font-size:11px;color:#777;letter-spacing:3px}
+button,.btn{display:inline-block;background:transparent;border:1px solid var(--fg);color:var(--fg);padding:10px 20px;font:inherit;font-size:14px;
+  letter-spacing:3px;cursor:pointer;margin:5px;text-decoration:none}
+button:hover,.btn:hover,button:focus-visible,.btn:focus-visible{background:var(--fg);color:var(--bg);outline:none}
+button.sm,.btn.sm{padding:6px 12px;font-size:12px;letter-spacing:2px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:150px;max-width:40vw;height:2px;background:#555;vertical-align:middle}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:12px;height:12px;background:var(--fg);cursor:pointer}
+@media (max-width:520px){.logo{font-size:22px;letter-spacing:4px;text-shadow:2px 0 var(--red),-2px 0 var(--blue)}}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IMPACT//VELOCITY</title>
+<link rel="stylesheet" href="/src/shared/ui.css">
+<style>
+body{display:flex;align-items:center;justify-content:center;min-height:100%;padding:24px 16px;background:#050505 radial-gradient(ellipse at 50% 120%,#0d1322 0,#050505 70%)}
+.panel{max-width:760px;width:100%;text-align:center}
+.tag{margin:4px 0 26px}
+.modes{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.mode{flex:1 1 260px;max-width:340px;margin:0;padding:22px 18px;text-align:left}
+.mode .name{display:block;font-size:26px;letter-spacing:8px;font-weight:bold}
+.mode .desc{display:block;margin-top:10px;font-size:11px;letter-spacing:2px;color:#999;line-height:1.7}
+.mode.impact{border-color:var(--red)}.mode.impact .name{color:var(--red)}
+.mode.velocity{border-color:var(--blue)}.mode.velocity .name{color:var(--blue)}
+.mode.impact:hover,.mode.impact:focus-visible{background:var(--red)}
+.mode.velocity:hover,.mode.velocity:focus-visible{background:var(--blue)}
+.mode:hover .name,.mode:hover .desc,.mode:focus-visible .name,.mode:focus-visible .desc{color:var(--bg)}
+.settings{font-size:12px;color:#999;letter-spacing:1px;line-height:2.4}
+.settings label{white-space:nowrap;margin:0 8px}
+</style>
+</head>
+<body>
+<div class="scan"></div>
+<main class="panel">
+  <h1 class="logo">IMPACT<span class="red">//</span>VELOCITY</h1>
+  <div class="tag">SELECT MODE</div>
+  <nav class="modes">
+    <a class="btn mode impact" id="modeImpact" href="./impact.html">
+      <span class="name">IMPACT</span>
+      <span class="desc">ARENA SHOOTER · TEAM DEATHMATCH / FREE FOR ALL VS BOTS</span>
+    </a>
+    <a class="btn mode velocity" id="modeVelocity" href="./velocity.html">
+      <span class="name">VELOCITY</span>
+      <span class="desc">ENDLESS GAUNTLET · RUN, WALL-RUN, GRAPPLE, SHOOT · IN DEVELOPMENT</span>
+    </a>
+  </nav>
+  <div class="sect">SETTINGS</div>
+  <div class="settings">
+    <label>SENS <input type="range" id="sens" min="5" max="60"></label>
+    <label>MUSIC <input type="range" id="music" min="0" max="100"></label>
+    <label>SFX <input type="range" id="sfx" min="0" max="100"></label>
+  </div>
+</main>
+<script type="module" src="/src/shell/main.ts"></script>
+</body>
+</html>
