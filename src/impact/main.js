@@ -1,4 +1,5 @@
-import * as THREE from 'three';
+import * as THREE from 'three/build/three.min.js'; /* same r128 build legacy loads from the CDN (byte-identical) */
+import { installParityHook } from './parityHook.js'; /* IMPACT-EDIT */
 'use strict';
 /* ================= UTILS ================= */
 function clamp(v,a,b){return v<a?a:v>b?b:v;}
@@ -1666,3 +1667,11 @@ function loop(t){
   renderer.render(scene,camera);
 }
 requestAnimationFrame(loop);
+/* IMPACT-EDIT: expose live state to the parity harness (no-op without ?parity) */
+installParityHook(function(){
+  return {state:state,paused:paused,P:P,bots:bots,inv:inv,curKey:curKey,curSlot:curSlot,katanaMode:katanaMode,
+    reloadT:reloadT,flipT:flipT,adsAmt:adsAmt,swingT:swingT,knifeT:knifeT,dashCd:dashCd,wallRunning:wallRunning,
+    grappleHave:grappleHave,grapAnchor:grapAnchor,uavOn:uavOn,gunslinger:gunslinger,rainCharges:rainCharges,
+    rainActive:rainActive,sabre:sabre,match:match,teamScore:teamScore,loadoutPrimary:loadoutPrimary,sens:sens,
+    camera:camera,vm:vm,rags:rags,goreP:goreP,tracers:tracers,pickups:pickups,rainMeshes:rainMeshes};
+},{killBot:killBot,damagePlayer:damagePlayer});
