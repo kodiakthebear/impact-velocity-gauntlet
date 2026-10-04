@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VELOCITY</title>
+<link rel="stylesheet" href="/src/shared/ui.css">
+<style>
+html,body{overflow:hidden}
+#view{position:fixed;inset:0}
+#view canvas{display:block}
+.hud{position:fixed;z-index:10;color:var(--hud);font-size:13px;letter-spacing:.5px;line-height:1.75}
+#title{top:14px;left:16px}
+#title b{font-size:18px;letter-spacing:6px;color:var(--blue)}
+#stats{top:14px;right:16px;text-align:right}
+#back{position:fixed;z-index:10;bottom:16px;left:16px;margin:0}
+#note{bottom:20px;right:16px;text-align:right;font-size:11px;color:var(--dimc)}
+</style>
+</head>
+<body>
+<div id="view"></div>
+<div class="scan"></div>
+<div class="hud" id="title"><b>VELOCITY</b><br><span class="dim">GAUNTLET · SHELL BUILD</span></div>
+<div class="hud" id="stats"><span id="frameTime">FRAME -- ms</span><br><span id="simTicks" class="dim">SIM 0 TICKS</span></div>
+<button id="back" class="sm">&#9666; MODE SELECT <span class="dim">[ESC]</span></button>
+<div class="hud" id="note">MOVEMENT ARRIVES IN SLICE 1</div>
+<script type="module" src="/src/velocity/main.ts"></script>
+</body>
+</html>
