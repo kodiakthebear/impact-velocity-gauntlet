@@ -1,5 +1,6 @@
 import * as THREE from 'three/build/three.min.js'; /* same r128 build legacy loads from the CDN (byte-identical) */
 import { installParityHook } from './parityHook.js'; /* IMPACT-EDIT */
+import { h, setChildren, cloneAll } from './dom.js'; /* IMPACT-EDIT */
 'use strict';
 /* ================= UTILS ================= */
 function clamp(v,a,b){return v<a?a:v>b?b:v;}
@@ -1427,8 +1428,8 @@ function playerDeath(killer){
   gunslinger.have=false; gunslinger.ammo=0;
   endSabre();
   $('deathcam').style.display='block';
-  $('deathcam').innerHTML='TERMINATED BY '+(killer?killer.name.toUpperCase():'THE ARENA')+
-    '<div style="font-size:13px;color:#777;letter-spacing:2px;margin-top:12px">RESPAWNING…</div>';
+  setChildren($('deathcam'),['TERMINATED BY '+(killer?killer.name.toUpperCase():'THE ARENA'),
+    h('div',{style:'font-size:13px;color:#777;letter-spacing:2px;margin-top:12px'},['RESPAWNING…'])]); /* IMPACT-EDIT: DOM builders, no innerHTML */
   checkEnd();
 }
 function respawnPlayer(){
@@ -1451,18 +1452,18 @@ function announceBig(t){
 }
 function nameSpan(ent){
   var cls=(ent===P||ent.team===P.team)?'blue':'red';
-  return '<span class="'+cls+'">'+ent.name+'</span>';
+  return h('span',{cls:cls},[ent.name]); /* IMPACT-EDIT: DOM builders, no innerHTML */
 }
 function feedKill(killer,wname,victim,hs){
-  var kh=killer?nameSpan(killer):'<span class="dim">ARENA</span>';
-  feedItems.push({h:kh+' <span class="'+(hs?'red':'dim')+'">['+(hs?'HEADSHOT':wname)+']</span> '+nameSpan(victim),t:5});
+  var kh=killer?nameSpan(killer):h('span',{cls:'dim'},['ARENA']);
+  feedItems.push({h:[kh,' ',h('span',{cls:hs?'red':'dim'},['['+(hs?'HEADSHOT':wname)+']']),' ',nameSpan(victim)],t:5}); /* IMPACT-EDIT: DOM builders, no innerHTML */
   if(feedItems.length>4)feedItems.shift();
   renderFeed();
 }
 function renderFeed(){
-  var s='';
-  for(var i=0;i<feedItems.length;i++)s+='<div>'+feedItems[i].h+'</div>';
-  $('feed').innerHTML=s;
+  var rows=[];
+  for(var i=0;i<feedItems.length;i++)rows.push(h('div',null,cloneAll(feedItems[i].h)));
+  setChildren($('feed'),rows); /* IMPACT-EDIT: DOM builders, no innerHTML */
 }
 var mmC=$('mm').getContext('2d');
 function drawMM(){
@@ -1500,14 +1501,15 @@ function hudUpdate(dt){
   if(ch)renderFeed();
   var hpN=Math.ceil(clamp(P.hp,0,100)/10);
   var bar='';for(var a=0;a<hpN;a++)bar+='█'; var bar2='';for(var a2=hpN;a2<10;a2++)bar2+='░';
-  $('hpline').innerHTML='<span class="dim">HP</span> <span class="blue">'+bar+'</span><span style="color:#2a2a2a">'+bar2+'</span> '+Math.ceil(Math.max(0,P.hp));
+  setChildren($('hpline'),[h('span',{cls:'dim'},['HP']),' ',h('span',{cls:'blue'},[bar]),h('span',{style:'color:#2a2a2a'},[bar2]),' '+Math.ceil(Math.max(0,P.hp))]); /* IMPACT-EDIT: DOM builders, no innerHTML */
   var sp=Math.hypot(P.vel.x,P.vel.z);
-  var mh=(grappleHave?'<span class="blue">[E] GRAPPLE</span> &nbsp;':'')+'<span class="dim">»» '+sp.toFixed(1)+' m/s'+(P.sliding?' SLIDING':'')+(wallRunning?' WALLRUN':'')+(dashCd<=0?' · [Q] DASH':'')+'</span>';
-  $('movehint').innerHTML=mh;
-  if(katanaMode)$('ammoline').innerHTML='<span class="blue pulse">PULSE KATANA</span> <span style="font-size:16px">∞</span>';
+  setChildren($('movehint'),[grappleHave?h('span',{cls:'blue'},['[E] GRAPPLE']):null,grappleHave?' \u00a0':null,
+    h('span',{cls:'dim'},['»» '+sp.toFixed(1)+' m/s'+(P.sliding?' SLIDING':'')+(wallRunning?' WALLRUN':'')+(dashCd<=0?' · [Q] DASH':'')])]); /* IMPACT-EDIT: DOM builders, no innerHTML */
+  if(katanaMode)setChildren($('ammoline'),[h('span',{cls:'blue pulse'},['PULSE KATANA']),' ',h('span',{style:'font-size:16px'},['∞'])]); /* IMPACT-EDIT: DOM builders, no innerHTML */
   else{
     var w=W(),iv=inv[curKey];
-    $('ammoline').innerHTML='<span class="dim">'+w.n+'</span> &nbsp;<span style="font-size:17px;color:var(--hud)">'+iv.ammo+'</span><span style="color:#666"> / '+iv.res+'</span>'+(reloadT>0?' <span class="red pulse">RELOADING</span>':'');
+    setChildren($('ammoline'),[h('span',{cls:'dim'},[w.n]),' \u00a0',h('span',{style:'font-size:17px;color:var(--hud)'},[iv.ammo]),
+      h('span',{style:'color:#666'},[' / '+iv.res]),reloadT>0?' ':null,reloadT>0?h('span',{cls:'red pulse'},['RELOADING']):null]); /* IMPACT-EDIT: DOM builders, no innerHTML */
   }
   var st='';
   if(P.streak>0){
@@ -1515,16 +1517,16 @@ function hudUpdate(dt){
     st='◈ STREAK '+P.streak+(nxt?' — '+nxt[1]+' IN '+(nxt[0]-P.streak):' — MAXED');
   }
   $('streakM').textContent=st;
-  var pw='';
-  if(gunslinger.have&&gunslinger.ammo>0)pw+='<div class="pulseslow"><span class="red">[G]</span> GUNSLINGER '+gunslinger.ammo+'/6</div>';
-  if(rainCharges>0)pw+='<div class="red pulseslow"><span style="color:var(--hud)">[H]</span> RAIN HELL READY</div>';
-  if(rainActive>0)pw+='<div class="red pulse">NAPALM INBOUND</div>';
-  $('powers').innerHTML=pw;
+  var pw=[]; /* IMPACT-EDIT: DOM builders, no innerHTML */
+  if(gunslinger.have&&gunslinger.ammo>0)pw.push(h('div',{cls:'pulseslow'},[h('span',{cls:'red'},['[G]']),' GUNSLINGER '+gunslinger.ammo+'/6']));
+  if(rainCharges>0)pw.push(h('div',{cls:'red pulseslow'},[h('span',{style:'color:var(--hud)'},['[H]']),' RAIN HELL READY']));
+  if(rainActive>0)pw.push(h('div',{cls:'red pulse'},['NAPALM INBOUND']));
+  setChildren($('powers'),pw);
   if(sabre.active)$('sabreT').textContent='SABRE SURPRISE '+Math.max(0,sabre.t).toFixed(1);
-  var tb='';
-  if(match.mode==='tdm')tb='TDM · '+fmtTime(match.time)+' · <span class="blue">BLU '+teamScore.blue+'</span> — <span class="red">'+teamScore.red+' RED</span>';
-  else{ var ld=leader(); tb='FFA VS BOTS · '+fmtTime(match.time)+' · K '+P.kills+' / D '+P.deaths+' · TOP: '+ld.name+' ('+ld.kills+')'; }
-  $('topbar').innerHTML=tb;
+  var tb; /* IMPACT-EDIT: DOM builders, no innerHTML */
+  if(match.mode==='tdm')tb=['TDM · '+fmtTime(match.time)+' · ',h('span',{cls:'blue'},['BLU '+teamScore.blue]),' — ',h('span',{cls:'red'},[teamScore.red+' RED'])];
+  else{ var ld=leader(); tb=['FFA VS BOTS · '+fmtTime(match.time)+' · K '+P.kills+' / D '+P.deaths+' · TOP: '+ld.name+' ('+ld.kills+')']; }
+  setChildren($('topbar'),tb);
   if(uavOn)drawMM();
 }
 /* ================= MATCH FLOW ================= */
@@ -1588,16 +1590,16 @@ function endMatch(){
   var es=[P].concat(bots);
   es.sort(function(a,b){return b.kills-a.kills;});
   var title;
-  if(match.mode==='tdm')title=teamScore.blue>=teamScore.red?'<span class="blue">BLUE WINS</span>':'<span class="red">RED WINS</span>';
-  else title=(es[0]===P?'<span class="blue">YOU WIN</span>':'<span class="red">'+es[0].name.toUpperCase()+' WINS</span>');
-  $('resTitle').innerHTML=title;
-  var t='<table><tr><th>PLAYER</th><th>K</th><th>D</th></tr>';
+  if(match.mode==='tdm')title=teamScore.blue>=teamScore.red?h('span',{cls:'blue'},['BLUE WINS']):h('span',{cls:'red'},['RED WINS']); /* IMPACT-EDIT: DOM builders, no innerHTML */
+  else title=(es[0]===P?h('span',{cls:'blue'},['YOU WIN']):h('span',{cls:'red'},[es[0].name.toUpperCase()+' WINS']));
+  setChildren($('resTitle'),[title]);
+  /* the HTML parser wrapped legacy's rows in an implicit <tbody>; build it explicitly */
+  var rows=[h('tr',null,[h('th',null,['PLAYER']),h('th',null,['K']),h('th',null,['D'])])];
   for(var i=0;i<es.length;i++){
     var e=es[i];
-    t+='<tr><td>'+nameSpan(e)+'</td><td>'+e.kills+'</td><td>'+e.deaths+'</td></tr>';
+    rows.push(h('tr',null,[h('td',null,[nameSpan(e)]),h('td',null,[e.kills]),h('td',null,[e.deaths])]));
   }
-  t+='</table>';
-  $('resTable').innerHTML=t;
+  setChildren($('resTable'),[h('table',null,[h('tbody',null,rows)])]);
   $('menuResults').style.display='flex';
   startMusic();
   speak('match over');
