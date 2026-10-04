@@ -11,6 +11,12 @@ export default defineConfig({
     baseURL: 'http://localhost:4173',
     ...devices['Desktop Chrome'],
   },
+  /* Parity traces are CPU-heavy (software WebGL); running them alongside the smoke tests starves page loads.
+     Smoke runs first, parity after it. */
+  projects: [
+    { name: 'smoke', testMatch: /smoke\.spec\.js/ },
+    { name: 'parity', testMatch: /parity\.spec\.js/, dependencies: ['smoke'] },
+  ],
   webServer: {
     command: 'npm run build && npm run preview -- --port 4173 --strictPort',
     url: 'http://localhost:4173',
