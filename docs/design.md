@@ -25,7 +25,10 @@ Random events where part of the map collapses. Always telegraphed with an audio 
 
 ## Movement
 - Wall-running and grappling: Impact has them (unlocked by killstreaks). Velocity builds its own versions in src/sim, using Impact only as a reference for feel.
-- To build: air boost. OPEN DECISION: charges, cooldown, or something else. Decide before slice 2.
+- To build: air boost (decided 2026-10-05; built in slice 2):
+  - **Charges:** 2. Spent charges refill one at a time, 2.5 s each, on the ground and in the air.
+  - **Use:** in the air only, on a fresh press of Q. A boost sets velocity along the exact look direction (full 3D) at 17 m/s, or at the current speed if that is higher, and ends any wall-run. Respawning refills both charges.
+  - **Feedback:** a punchy, bassy audio hit and a short, sharp camera shake on every boost; a hiss when Q is pressed in the air with no charges. The HUD shows two charge pips that fill as they refill.
 
 ## Course
 Built from hand-designed chunks (gap, wall-run corridor, grapple pit, boost shaft, target gallery), placed by a seeded generator, with parameters inside the movement's real limits. A scripted bot proves every chunk is traversable.
