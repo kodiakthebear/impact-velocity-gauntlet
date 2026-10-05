@@ -17,6 +17,7 @@ Every edit in `src/impact/main.js` and `impact.html` is marked `IMPACT-EDIT`.
 ## How parity is proven (automated)
 `tests/e2e/impact-parity.spec.js` runs legacy and Impact through the same scripted inputs under a deterministic harness (`tests/e2e/helpers/determinism.js`):
 - seeded `Math.random`, with a count of calls
+- audio sample rate fixed at 48 kHz (legacy draws one random number per noise-buffer sample, so the device rate would otherwise change the random sequence between machines)
 - virtual clock for `performance.now` and `requestAnimationFrame` (exact 60 Hz frames)
 - no-op speech synthesis, a stubbed pointer lock, and the Wikimedia scream blocked so the synth fallback plays
 - the cdnjs three.js request served from `node_modules`

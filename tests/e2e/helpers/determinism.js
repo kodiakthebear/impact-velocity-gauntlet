@@ -6,8 +6,8 @@ export const LEGACY_PATH = '/__legacy/impact-velocity.html';
 const THREE_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
 
 /* Runs in the page before any page script: seeded Math.random with a call counter,
-   virtual clock for performance.now and requestAnimationFrame, silent speech,
-   and a pointer lock that always reports the game canvas as locked. */
+   virtual clock for performance.now and requestAnimationFrame, a fixed audio sample rate,
+   silent speech, and a pointer lock that always reports the game canvas as locked. */
 function installDeterminism(seed){
   var s=seed>>>0, calls=0;
   Math.random=function(){
@@ -19,6 +19,13 @@ function installDeterminism(seed){
     return ((t^(t>>>14))>>>0)/4294967296;
   };
   window.__rng={calls:function(){return calls;},reseed:function(n){s=n>>>0;calls=0;}};
+  /* initAudio fills noise buffers with one Math.random call per sample, so the device sample rate
+     (48 kHz locally, different on CI) would shift every later random value and change the scenario. */
+  var NativeAudioContext=window.AudioContext;
+  if(NativeAudioContext){
+    window.AudioContext=function(opts){return new NativeAudioContext(Object.assign({sampleRate:48000},opts||{}));};
+    window.AudioContext.prototype=NativeAudioContext.prototype;
+  }
   var vt=0, queue=[];
   performance.now=function(){return vt;};
   window.requestAnimationFrame=function(cb){queue.push(cb);return queue.length;};
