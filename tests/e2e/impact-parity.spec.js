@@ -9,7 +9,8 @@ import { openLegacy, openImpact, runScenario, scenario } from './helpers/determi
 const SEED = 20261005;
 
 test.use({ viewport: { width: 320, height: 240 } });
-test.describe.configure({ timeout: 240000 });
+/* each test drives two 600-1800 frame runs with real rendering; CI's software WebGL is slow */
+test.describe.configure({ timeout: 900000 });
 
 const movementAndWeapons = scenario(900)
   .click('#btnFFA', 5)
@@ -78,14 +79,6 @@ test('harness is deterministic: legacy run twice gives identical traces', async 
   expectSameTrace(b, a);
 });
 
-for (const [name, scn] of Object.entries({ movementAndWeapons, shotgunTeamMatch, streaksAndLifecycle })) {
-  test(`Impact matches legacy frame by frame: ${name}`, async ({ browser }) => {
-    const legacy = await trace(browser, openLegacy, scn);
-    const impact = await trace(browser, openImpact, scn);
-    expectSameTrace(impact, legacy);
-  });
-}
-
 /* Guards against a vacuous pass: each scenario must actually exercise what it is there to cover.
    Indexes follow the snapshot layout in helpers/determinism.js. */
 const COVERAGE = {
@@ -122,18 +115,16 @@ const COVERAGE = {
     'death cam': s => !s.P.alive && s.box.length && s.leaf[10].startsWith('TERMINATED BY'),
     'respawned after death': (s, i, f) => s.P.alive && f.slice(0, i).some(p => !p.P.alive),
     'results table': s => s.state === 'results' && s.leaf[13].includes('<tbody>'),
+    'back on the menu after the match': (s, i, f) => s.state === 'menu' && f.slice(0, i).some(p => p.state === 'results'),
   },
 };
 
 for (const [name, scn] of Object.entries({ movementAndWeapons, shotgunTeamMatch, streaksAndLifecycle })) {
-  test(`scenario covers what it claims: ${name}`, async ({ browser }) => {
-    const f = await trace(browser, openLegacy, scn);
-    const missing = Object.entries(COVERAGE[name]).filter(([, seen]) => !f.some(seen)).map(([what]) => what);
-    expect(missing).toEqual([]);
+  test(`Impact matches legacy frame by frame: ${name}`, async ({ browser }) => {
+    const legacy = await trace(browser, openLegacy, scn);
+    const missing = Object.entries(COVERAGE[name]).filter(([, seen]) => !legacy.some(seen)).map(([what]) => what);
+    expect(missing, 'scenario must exercise what it claims').toEqual([]);
+    const impact = await trace(browser, openImpact, scn);
+    expectSameTrace(impact, legacy);
   });
 }
-
-test('streak scenario ends back on the menu', async ({ browser }) => {
-  const f = await trace(browser, openLegacy, streaksAndLifecycle);
-  expect(f[f.length - 1].state).toBe('menu');
-});

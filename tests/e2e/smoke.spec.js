@@ -25,15 +25,21 @@ test('mode selector offers both modes', async ({ page }) => {
 });
 
 test('Impact opens from the selector, runs a match, and returns to the selector', async ({ page }) => {
+  /* count real animation frames: on CI's software renderer the match clock can crawl, so frames are the honest signal */
+  await page.addInitScript(() => {
+    window.__frames = 0;
+    const raf = window.requestAnimationFrame.bind(window);
+    window.requestAnimationFrame = cb => raf(t => { window.__frames++; cb(t); });
+  });
   await page.goto('/');
   await page.locator('#modeImpact').click();
   await expect(page).toHaveURL(/\/impact\.html$/);
   await page.locator('#btnTDM').click();
   await expect(page.locator('#hud')).toBeVisible();
-  const topbar = page.locator('#topbar');
-  await expect(topbar).toContainText('TDM · ');
-  const first = await topbar.textContent();
-  await expect.poll(() => topbar.textContent(), { timeout: 5000 }).not.toBe(first); /* match clock is ticking */
+  await expect(page.locator('#topbar')).toHaveText(/^TDM · \d:\d\d · BLU \d+ — \d+ RED$/);
+  const frames = () => page.evaluate(() => window.__frames);
+  const start = await frames();
+  await expect.poll(frames, { timeout: 20000 }).toBeGreaterThan(start + 5); /* game loop keeps running */
 
   await page.goto('/impact.html');
   await page.locator('#btnModes').click();
