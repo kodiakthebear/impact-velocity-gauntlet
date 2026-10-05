@@ -9,21 +9,38 @@
 html,body{overflow:hidden}
 #view{position:fixed;inset:0}
 #view canvas{display:block}
-.hud{position:fixed;z-index:10;color:var(--hud);font-size:13px;letter-spacing:.5px;line-height:1.75}
+.hud{position:fixed;z-index:10;color:var(--hud);font-size:13px;letter-spacing:.5px;line-height:1.75;pointer-events:none}
 #title{top:14px;left:16px}
 #title b{font-size:18px;letter-spacing:6px;color:var(--blue)}
 #stats{top:14px;right:16px;text-align:right}
-#back{position:fixed;z-index:10;bottom:16px;left:16px;margin:0}
-#note{bottom:20px;right:16px;text-align:right;font-size:11px;color:var(--dimc)}
+#move{bottom:20px;left:16px;color:var(--blue)}
+#xh{top:50%;left:50%;transform:translate(-50%,-50%)}
+#overlay{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(5,5,5,.72)}
+#overlay[hidden]{display:none}
+.panel{text-align:center;max-width:560px}
+.panel .logo{font-size:34px;letter-spacing:10px}
+.panel .ctl{margin-top:18px;font-size:12px;color:#999;letter-spacing:1px;line-height:1.9}
 </style>
 </head>
 <body>
 <div id="view"></div>
 <div class="scan"></div>
-<div class="hud" id="title"><b>VELOCITY</b><br><span class="dim">GAUNTLET · SHELL BUILD</span></div>
+<div class="hud" id="title"><b>VELOCITY</b><br><span class="dim">GAUNTLET · MOVEMENT SANDBOX</span></div>
 <div class="hud" id="stats"><span id="frameTime">FRAME -- ms</span><br><span id="simTicks" class="dim">SIM 0 TICKS</span></div>
-<button id="back" class="sm">&#9666; MODE SELECT <span class="dim">[ESC]</span></button>
-<div class="hud" id="note">MOVEMENT ARRIVES IN SLICE 1</div>
+<div class="hud" id="move"><span id="speed">0.0 m/s</span> <span id="moveState" class="dim"></span></div>
+<div class="hud" id="xh"><svg width="34" height="34" viewBox="0 0 34 34"><path d="M17 3V10 M17 24V31 M3 17H10 M24 17H31" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="17" r="1.5" fill="currentColor"/></svg></div>
+<div id="overlay">
+  <div class="panel">
+    <div class="logo blue">VELOCITY</div>
+    <div class="tag" id="overlayTag">MOVEMENT SANDBOX</div>
+    <div>
+      <button id="play">CLICK TO PLAY</button>
+      <button id="back" class="sm">&#9666; MODE SELECT</button>
+    </div>
+    <div class="ctl">WASD move · SHIFT sprint · SPACE jump · C / CTRL crouch, slide<br>
+      jump along a wall at speed to <span class="blue">wall-run</span>, SPACE again to wall-jump · ESC pause</div>
+  </div>
+</div>
 <script type="module" src="/src/velocity/main.ts"></script>
 </body>
 </html>
