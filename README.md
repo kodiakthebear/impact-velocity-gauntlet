@@ -21,6 +21,15 @@ npx playwright install chromium   # once
 npm run test:e2e   # smoke tests + Impact-vs-legacy parity (builds first)
 ```
 
+## Velocity
+Click to play (the mouse is captured); Esc pauses. WASD move, Shift sprint, Space jump, C or Ctrl crouch and slide. Jump along a wall at speed to wall-run; press Space again to wall-jump.
+
+The simulation (`src/sim/`) runs on a fixed 60 Hz step and is deterministic: a list of per-tick inputs replayed from spawn always gives bit-identical state.
+- `tests/replays/*.json` are golden replays. Each stores its inputs plus a hash of the final state and a hash of the state after every tick.
+- After a deliberate change to movement tuning or the sandbox, re-record them with `UPDATE_REPLAYS=1 npm test`. Then review the milestone checks in `tests/unit/replay.test.js`, which confirm each replay still wall-runs, slides, respawns and so on.
+- Open `velocity.html?debug` to get `window.__velocity.capture()`, which returns the session's recorded inputs and exact state.
+- Determinism is verified in V8 (Chrome and Node). Other engines may compute `Math.sin`/`Math.cos` differently, so replays are not guaranteed to match in Firefox or Safari.
+
 ## Layout
 | Path | What |
 |---|---|

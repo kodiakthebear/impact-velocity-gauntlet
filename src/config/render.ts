@@ -42,3 +42,18 @@ export const SURFACE = { roughness: 0.85, metalness: 0.15 };
 export const NEON_SURFACE = { baseScale: 0.2, intensity: 1.6, roughness: 0.4 };
 /* Neon trim strips sit just proud of the surface they decorate. */
 export const STRIP = { thickness: 0.07, width: 0.3, lift: 0.04 };
+
+/* First-person camera feel, from Impact: FOV kick at speed and while sliding, roll on strafe and wall-run. */
+export const FPS_CAMERA = {
+  eyeHeight: 1.6,
+  crouchEyeDrop: 0.7,
+  eyeSmoothing: 10,
+  fovSpeedThreshold: 10,
+  fovSpeedBoost: 6,
+  fovSlideBoost: 6,
+  fovSmoothing: 10,
+  strafeRoll: 0.0035,
+  wallRunRoll: 0.18,
+  slideRoll: -0.06,
+  rollSmoothing: 8,
+};
