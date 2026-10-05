@@ -15,7 +15,7 @@ export default defineConfig({
      Smoke runs first, parity after it. */
   projects: [
     /* page loads and a running match are slow under CI's software WebGL */
-    { name: 'smoke', testMatch: /smoke\.spec\.js/, timeout: 60000 },
+    { name: 'smoke', testMatch: /(smoke|velocity)\.spec\.(js|ts)/, timeout: 60000 },
     { name: 'parity', testMatch: /parity\.spec\.js/, dependencies: ['smoke'] },
   ],
   webServer: {

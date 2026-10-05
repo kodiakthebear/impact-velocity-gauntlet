@@ -48,25 +48,16 @@ test('Impact returns to the selector with MODE SELECT', async ({ page }) => {
   await expect(page).toHaveURL(/\/$/);
 });
 
-test('Velocity opens from the selector, renders and ticks the simulation', async ({ page }) => {
+test('Velocity opens from the selector, renders the sandbox and offers to play', async ({ page }) => {
   await page.goto('/');
   await page.locator('#modeVelocity').click();
   await expect(page).toHaveURL(/\/velocity\.html$/);
   await expect(page.locator('#view canvas')).toBeVisible();
-  await expect.poll(async () => Number((await page.locator('#simTicks').textContent()).match(/\d+/)[0])).toBeGreaterThan(30);
-  await expect(page.locator('#frameTime')).not.toContainText('--');
-  /* the orbiting camera only changes the picture if geometry is being drawn */
-  const view = page.locator('#view');
-  const a = await view.screenshot();
-  await page.waitForTimeout(1500);
-  const b = await view.screenshot();
-  expect(a.equals(b)).toBe(false);
+  await expect(page.locator('#play')).toHaveText('CLICK TO PLAY');
+  await expect(page.locator('#frameTime')).not.toContainText('--'); /* render loop is running */
 });
 
-test('Velocity returns to the selector with Esc and with the back button', async ({ page }) => {
-  await page.goto('/velocity.html');
-  await page.keyboard.press('Escape');
-  await expect(page).toHaveURL(/\/$/);
+test('Velocity returns to the selector from its overlay', async ({ page }) => {
   await page.goto('/velocity.html');
   await page.locator('#back').click();
   await expect(page).toHaveURL(/\/$/);
