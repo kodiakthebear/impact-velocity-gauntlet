@@ -14,7 +14,8 @@ export default defineConfig({
   /* Parity traces are CPU-heavy (software WebGL); running them alongside the smoke tests starves page loads.
      Smoke runs first, parity after it. */
   projects: [
-    { name: 'smoke', testMatch: /smoke\.spec\.js/ },
+    /* page loads and a running match are slow under CI's software WebGL */
+    { name: 'smoke', testMatch: /smoke\.spec\.js/, timeout: 60000 },
     { name: 'parity', testMatch: /parity\.spec\.js/, dependencies: ['smoke'] },
   ],
   webServer: {

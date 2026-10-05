@@ -24,7 +24,7 @@ test('mode selector offers both modes', async ({ page }) => {
   await expect(page.locator('#modeVelocity')).toContainText('VELOCITY');
 });
 
-test('Impact opens from the selector, runs a match, and returns to the selector', async ({ page }) => {
+test('Impact opens from the selector and runs a match', async ({ page }) => {
   /* count real animation frames: on CI's software renderer the match clock can crawl, so frames are the honest signal */
   await page.addInitScript(() => {
     window.__frames = 0;
@@ -40,7 +40,9 @@ test('Impact opens from the selector, runs a match, and returns to the selector'
   const frames = () => page.evaluate(() => window.__frames);
   const start = await frames();
   await expect.poll(frames, { timeout: 20000 }).toBeGreaterThan(start + 5); /* game loop keeps running */
+});
 
+test('Impact returns to the selector with MODE SELECT', async ({ page }) => {
   await page.goto('/impact.html');
   await page.locator('#btnModes').click();
   await expect(page).toHaveURL(/\/$/);
